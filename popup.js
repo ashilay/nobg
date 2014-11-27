@@ -1,3 +1,5 @@
+"use strict";
+
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -8,7 +10,7 @@
  *
  * @type {string}
  */
-var QUERY = 'kittens';
+var QUERY = "kittens";
 
 var kittenGenerator = {
   /**
@@ -20,14 +22,14 @@ var kittenGenerator = {
    * @type {string}
    * @private
    */
-  searchOnFlickr_: 'https://secure.flickr.com/services/rest/?' +
-      'method=flickr.photos.search&' +
-      'api_key=90485e931f687a9b9c2a66bf58a3861a&' +
-      'text=' + encodeURIComponent(QUERY) + '&' +
-      'safe_search=1&' +
-      'content_type=1&' +
-      'sort=interestingness-desc&' +
-      'per_page=20',
+  searchOnFlickr_: "https://secure.flickr.com/services/rest/?" +
+      "method=flickr.photos.search&" +
+      "api_key=90485e931f687a9b9c2a66bf58a3861a&" +
+      "text=" + encodeURIComponent(QUERY) + "&" +
+      "safe_search=1&" +
+      "content_type=1&" +
+      "sort=interestingness-desc&" +
+      "per_page=20",
 
   /**
    * Sends an XHR GET request to grab photos of lots and lots of kittens. The
@@ -40,6 +42,9 @@ var kittenGenerator = {
     req.open("GET", this.searchOnFlickr_, true);
     req.onload = this.showPhotos_.bind(this);
     req.send(null);
+
+    var btn = document.querySelectorAll(".cmd__hide-bg")[0];
+    btn.addEventListener("click", this.hideBackground);
   },
 
   /**
@@ -51,11 +56,11 @@ var kittenGenerator = {
    * @private
    */
   showPhotos_: function (e) {
-    var kittens = e.target.responseXML.querySelectorAll('photo');
+    var kittens = e.target.responseXML.querySelectorAll("photo");
     for (var i = 0; i < kittens.length; i++) {
-      var img = document.createElement('img');
+      var img = document.createElement("img");
       img.src = this.constructKittenURL_(kittens[i]);
-      img.setAttribute('alt', kittens[i].getAttribute('title'));
+      img.setAttribute("alt", kittens[i].getAttribute("title"));
       document.body.appendChild(img);
     }
   },
@@ -74,10 +79,24 @@ var kittenGenerator = {
         "/" + photo.getAttribute("id") +
         "_" + photo.getAttribute("secret") +
         "_s.jpg";
+  },
+
+  hideBackground: function() {
+    // document.body.style.background = "none"; 
+
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, function(response) {
+        console.log(response.farewell);
+      });
+    });
+
+
   }
 };
 
 // Run our kitten generation script as soon as the document's DOM is ready.
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
   kittenGenerator.requestKittens();
 });
+
+
